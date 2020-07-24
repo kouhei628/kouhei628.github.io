@@ -1,86 +1,107 @@
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
-    <script src="OrbitControls.js"></script>
-    <script>
-      // ページの読み込みを待つ
-      window.addEventListener('load', init);
 
-      function init() {
-        // サイズを指定
-        const width = 960;
-        const height = 540;
+<head>
+  <meta charset="utf-8" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+  <script src="OrbitControls.js"></script>
+  <script>
+    // ページの読み込みを待つ
+    window.addEventListener('load', init);
 
-        // レンダラーを作成
-        const renderer = new THREE.WebGLRenderer({
-          canvas: document.querySelector('#myCanvas')
-        });
-        renderer.setSize(width, height);
-        // 光源が関係ないので
-        renderer.setClearColor(0xf9f9f9, 1.0);
+    function init() {
+      // サイズを指定
+      const width = 960;
+      const height = 540;
 
-        // シーンを作成
-        const scene = new THREE.Scene();
-        // シーン全体のフォグ
-        scene.fog = new THREE.Fog(0xf9f9f9, 800, 2000);
+      // レンダラーを作成
+      const renderer = new THREE.WebGLRenderer({
+        canvas: document.querySelector('#myCanvas')
+      });
+      renderer.setSize(width, height);
+      // 光源が関係ないので
+      renderer.setClearColor(0xf9f9f9, 1.0);
 
-        // カメラを作成
-        const camera = new THREE.PerspectiveCamera(45, width / height);
-        // カメラの初期座標を設定
-        camera.position.set(0, 0, 1000);
+      // シーンを作成
+      const scene = new THREE.Scene();
+      // シーン全体のフォグ
+      scene.fog = new THREE.Fog(0xf9f9f9, 800, 2000);
 
-        // カメラコントローラーを作成
-        const controls = new THREE.OrbitControls(camera);
-        controls.autoRotate = true;
+      // カメラを作成
+      const camera = new THREE.PerspectiveCamera(45, width / height);
+      // カメラの初期座標を設定
+      camera.position.set(0, 0, 1000);
 
-        // helper
-        const gridHelper = new THREE.GridHelper(1000,20); // size, step
-        scene.add(gridHelper);
-        const axisHelper = new THREE.AxisHelper(1000); //軸の長さ　X：赤、Y：緑、z：青
-        scene.add(axisHelper);
+      // カメラコントローラーを作成
+      const controls = new THREE.OrbitControls(camera);
+      controls.autoRotate = true;
 
-        // マテリアルを作成する
-        const material = new THREE.SpriteMaterial({
-          map: new THREE.TextureLoader().load('../img/tree1.png')
-        });
-        // フォグ（霞）を有効にする
-        material.fog = true;
-
-        
-
-        // ビルボードを作成
-        for (let i = 0; i < 125; i++) {
-          const sprite = new THREE.Sprite(material);
-          // ランダムな座標に配置
-          sprite.position.x = 1000 * (Math.random() - 0.5);
-          sprite.position.y = 24 ;
-          sprite.position.z = 1000 * (Math.random() - 0.5);
-          // 必要に応じてスケールを調整
-          sprite.scale.set(50, 50, 50);
-
-          scene.add(sprite);
-        }
+      var textureLoader = new THREE.TextureLoader();
+      var texture = textureLoader.load("../img/ground.jpeg");
+      var mat = new THREE.MeshPhongMaterial();
+      mat.map = texture;
 
 
+      // 平面を作成
+      var planeGeometry = new THREE.PlaneGeometry(1000, 1000);
+      //var planeMaterial = new THREE.MeshBasicMaterial({color: 0x00ff00});
+      var planeMaterial = new THREE.MeshPhongMaterial({
+        color: 0x00ff00
+      });
+      var plane = new THREE.Mesh(planeGeometry, mat);
+      plane.receiveShadow = true;
+      plane.rotation.set(-Math.PI / 2, 0, 0);
+      plane.position.set(0, -1.5, -6);
+      scene.add(plane);
 
-        //光源はspriteのみならば不要！
-        // 光源（環境光）
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
-        scene.add(ambientLight);
+      // helper
+      const gridHelper = new THREE.GridHelper(1000, 20); // size, step
+      scene.add(gridHelper);
+      const axisHelper = new THREE.AxisHelper(1000); //軸の長さ　X：赤、Y：緑、z：青
+      scene.add(axisHelper);
 
-        tick();
+      // マテリアルを作成する
+      const material = new THREE.SpriteMaterial({
+        map: new THREE.TextureLoader().load('../img/tree1.png')
+      });
+      // フォグ（霞）を有効にする
+      material.fog = true;
 
-        // 毎フレーム時に実行されるループイベントです
-        function tick() {
-          // レンダリング
-          renderer.render(scene, camera);
-          requestAnimationFrame(tick);
-        }
+
+
+      // ビルボードを作成
+      for (let i = 0; i < 125; i++) {
+        const sprite = new THREE.Sprite(material);
+        // ランダムな座標に配置
+        sprite.position.x = 1000 * (Math.random() - 0.5);
+        sprite.position.y = 24;
+        sprite.position.z = 1000 * (Math.random() - 0.5);
+        // 必要に応じてスケールを調整
+        sprite.scale.set(50, 50, 50);
+
+        scene.add(sprite);
       }
-    </script>
-  </head>
-  <body>
-    <canvas id="myCanvas"></canvas>
-  </body>
+
+
+
+      //光源はspriteのみならば不要！
+      // 光源（環境光）
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+      scene.add(ambientLight);
+
+      tick();
+
+      // 毎フレーム時に実行されるループイベントです
+      function tick() {
+        // レンダリング
+        renderer.render(scene, camera);
+        requestAnimationFrame(tick);
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <canvas id="myCanvas"></canvas>
+</body>
+
 </html>
